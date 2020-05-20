@@ -39,7 +39,10 @@ class Function(FormulaObject):
     def variables(self):
         return [self.body.variables()]
     def deriv(self):
-        return Function(self.label, self.body.deriv().simplify(), self.deriv_order + 1)
+        if self.body.deriv():
+            return Function(self.label, self.body.deriv().simplify(), self.deriv_order + 1)
+        else:
+            return None
     def integrate(self, wrt):
         return Function(self.label, Sum(self.body.integrate(wrt).simplify(), Variable('C')), self.deriv_order - 1)
     def eval(self, vars):
@@ -293,7 +296,7 @@ class Sum(FormulaObject):
         elif right.ask("zero"):
             return left.simplify()
         elif isinstance(left, Constant) and isinstance(right, Constant):
-            return Constant(left.value * right.value)
+            return Constant(left.value + right.value)
         else:
             return Sum(self.left.simplify(), self.right.simplify())
     def complexity(self):
@@ -567,7 +570,7 @@ class Log(FormulaObject):
         return self.__class__.__name__ == other.__class__.__name__ and self.base == other.base\
                                                                    and self.argument == other.argument
     def __str__(self):
-        return "Log(base=" + str(self.base) + ",exponent=" + str(self.argument) + ")"
+        return "Log(base=" + str(self.base) + ",argument=" + str(self.argument) + ")"
     def variables(self):
         return self.argument.variables()
     def simplify(self):
